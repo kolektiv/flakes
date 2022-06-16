@@ -67,8 +67,7 @@
 
         rust = fenix.packages.${system};
         rustToolchain = rust.fromToolchainFile {
-          file = ./rust-toolchain.toml;
-          sha256 = pkgs.lib.fakeSha256;
+          dir = ./.;
         };
 
         # VSCode - Use the base set of extensions for VSCode defined at system
@@ -88,7 +87,6 @@
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
             rustToolchain
-            bash
             clang
             lld
             libiconv
