@@ -68,34 +68,31 @@
         rust = fenix.packages.${system};
         rustToolchain = rust.fromToolchainFile {
           file = ./rust-toolchain.toml;
-          sha256 = rust.lib.fakeSha256;
+          sha256 = pkgs.lib.fakeSha256;
         };
 
         # VSCode - Use the base set of extensions for VSCode defined at system
         # level. Note that this makes the flake impure, and obviously relies on
         # being used within a very specific user environment!
 
-        vscode = import ~/.config/nix/software/vscode/extensions/all.nix { pkgs = pkgs; };
+        vscodeExtensionsBase = import ~/.config/nix/software/vscode/extensions/all.nix { pkgs = pkgs; };
+        vscode = pkgs.vscode-with-extensions.override {
+          vscodeExtensions = vscodeExtensionsBase.extensions ++ (with pkgs.vscode-extensions; [
+            bungcip.better-toml
+          ]) ++ [
+            rust.rust-analyzer-vscode-extension
+          ];
+        };
 
       in rec {
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
-            # Rust Toolchain
-            rustToolchain.toolchain
-
-            # Compiler Dependencies
+            rustToolchain
+            bash
             clang
             lld
             libiconv
-
-            # VSCode with Rust Extensions
-            (vscode-with-extensions.override {
-              vscodeExtensions = vscode.extensions ++ (with pkgs.vscode-extensions; [
-                bungcip.better-toml
-              ]) ++ [
-                rust.rust-analyzer-vscode-extension
-              ];
-            })
+            vscode
           ];
 
           CARGO_HOME = "./.cargo";
