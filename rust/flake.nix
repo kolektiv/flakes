@@ -66,8 +66,8 @@
         # the current system, and derive a Rust Toolchain from the toolchain
         # file defined in the flake root.
 
-        rust = fenix.packages.${system};
-        rustToolchain = rust.fromToolchainFile {
+        rustPkgs = fenix.packages.${system};
+        rust = rustPkgs.fromToolchainFile {
           dir = ./.;
         };
 
@@ -83,7 +83,7 @@
           vscodeExtensions = vscodeExtensionsBase.extensions ++ (with pkgs.vscode-extensions; [
             bungcip.better-toml
           ]) ++ [
-            rust.rust-analyzer-vscode-extension
+            rustPkgs.rust-analyzer-vscode-extension
           ];
         };
 
@@ -94,7 +94,7 @@
           # and the configured VSCode with Rust specific extensions.
 
           buildInputs = with pkgs; [
-            rustToolchain
+            rust
             clang
             lld
             libiconv
