@@ -1,0 +1,14 @@
+_default:
+  @just --list
+
+# Run Clippy, etc.
+check:
+  cargo clippy --locked -- -D warnings
+
+# Run Tests
+test:
+  cargo test --locked
+
+# Run
+run:
+  cargo run --locked
