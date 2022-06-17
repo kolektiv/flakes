@@ -94,16 +94,21 @@
           # and the configured VSCode with Rust specific extensions.
 
           buildInputs = with pkgs; [
-            rust
             clang
             lld
             libiconv
+            rust
             vscode
           ];
 
           # Cargo - set Cargo to use a local cache/build folder for hygiene.
 
           CARGO_HOME = "./.cargo";
+
+          # Rust - set the Rust source path for the use of tooling such as Rust
+          # Analyzer, etc.
+
+          RUST_SRC_PATH = "${rust}/lib/rustlib/src/rust/library";
         };
       }
     );
