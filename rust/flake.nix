@@ -63,7 +63,8 @@
         };
 
         # Rust - Use the appropriate set of packages provided by Fenix based on
-        # the current system.
+        # the current system, and derive a Rust Toolchain from the toolchain
+        # file defined in the flake root.
 
         rust = fenix.packages.${system};
         rustToolchain = rust.fromToolchainFile {
@@ -72,7 +73,10 @@
 
         # VSCode - Use the base set of extensions for VSCode defined at system
         # level. Note that this makes the flake impure, and obviously relies on
-        # being used within a very specific user environment!
+        # being used within a very specific user environment! Define VSCode to
+        # use the system base extensions, plus other standard packaged
+        # extensions relevant (such as TOML support), plus the latest nightly
+        # Rust Analyzer from the Fenix packages.
 
         vscodeExtensionsBase = import ~/.config/nix/software/vscode/extensions/all.nix { pkgs = pkgs; };
         vscode = pkgs.vscode-with-extensions.override {
@@ -85,6 +89,10 @@
 
       in rec {
         devShells.default = pkgs.mkShell {
+
+          # Inputs - provide the derived Rust toolchain, compiler dependencies,
+          # and the configured VSCode with Rust specific extensions.
+
           buildInputs = with pkgs; [
             rustToolchain
             clang
@@ -92,6 +100,8 @@
             libiconv
             vscode
           ];
+
+          # Cargo - set Cargo to use a local cache/build folder for hygiene.
 
           CARGO_HOME = "./.cargo";
         };
