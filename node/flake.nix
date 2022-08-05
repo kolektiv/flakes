@@ -86,7 +86,7 @@
 
           NODE_PATH = "./.node";
           NPM_CONFIG_PREFIX = "./.node";
-          PATH = "${NODE_PATH}/bin:${PATH}";
+          PATH = "$NODE_PATH/bin:$PATH";
 
           # Cargo - set Cargo to use a local cache/build folder for hygiene.
 
