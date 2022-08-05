@@ -82,6 +82,7 @@
         vscode = pkgs.vscode-with-extensions.override {
           vscodeExtensions = vscodeExtensionsBase.extensions ++ (with pkgs.vscode-extensions; [
             bungcip.better-toml
+            skellock.just
           ]) ++ [
             rustPkgs.rust-analyzer-vscode-extension
           ];
@@ -95,6 +96,7 @@
 
           buildInputs = with pkgs; [
             clang
+            just
             lld
             libiconv
             rust
