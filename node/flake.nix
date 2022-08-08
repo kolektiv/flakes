@@ -49,53 +49,59 @@
           };
         };
 
-        # Rust - Use the appropriate set of packages provided by Fenix based on
-        # the current system, and derive a Rust Toolchain from the toolchain
-        # file defined in the flake root.
-
-        # rustPkgs = fenix.packages.${system};
-        # rust = rustPkgs.fromToolchainFile {
-        #   dir = ./.;
-        # };
-
         # VSCode - Use the base set of extensions for VSCode defined at system
         # level. Note that this makes the flake impure, and obviously relies on
         # being used within a very specific user environment! Define VSCode to
         # use the system base extensions, plus other standard packaged
-        # extensions relevant (such as TOML support), plus the latest nightly
-        # Rust Analyzer from the Fenix packages.
+        # extensions relevant.
 
         vscodeExtensionsBase = import ~/.config/nix/software/vscode/extensions/all.nix { pkgs = pkgs; };
         vscode = pkgs.vscode-with-extensions.override {
           vscodeExtensions = vscodeExtensionsBase.extensions ++ (with pkgs.vscode-extensions; [
-            # bungcip.better-toml
-          ]); # ++ [
-            # rustPkgs.rust-analyzer-vscode-extension
-          # ];
+            # <EXTENSIONS>
+          ]);
         };
 
       in rec {
         devShells.default = pkgs.mkShell {
 
-          # Inputs - provide the derived Rust toolchain, compiler dependencies,
-          # and the configured VSCode with Rust specific extensions.
+          # Inputs - provide the standard NodeJS LTS package and any supporting
+          # packages required.
 
           buildInputs = with pkgs; [
             nodejs-16_x
           ];
 
-          NODE_PATH = "./.node";
-          NPM_CONFIG_PREFIX = "./.node";
-          PATH = "$NODE_PATH/bin:$PATH";
+          # Shell Hook - set environment variables to configure the behaviour of
+          # configured build inputs, etc.
 
-          # Cargo - set Cargo to use a local cache/build folder for hygiene.
+          # Define a local NPM (.npm) path
 
-          # CARGO_HOME = "./.cargo";
+          shellHook = ''
+            export NPM=$PWD/.npm
+          '' 
+          
+          # Configure NPM to work in global mode (as everything is local, this
+          # keeps everything neat and tidy and avoids polluting home paths, etc. which
+          # may also be present.) Also set the cache directory locally.
 
-          # Rust - set the Rust source path for the use of tooling such as Rust
-          # Analyzer, etc.
+        + ''
+            export NPM_CONFIG_LOCATION=global
+            export NPM_CONFIG_CACHE=$NPM/cache
+            export NPM_CONFIG_PREFIX=$NPM
+          ''
 
-          # RUST_SRC_PATH = "${rust}/lib/rustlib/src/rust/library";
+          # Set the NODE_PATH to include the local NPM install.
+
+        + ''
+            export NODE_PATH=$NPM_CONFIG_PREFIX:$NODE_PATH
+          ''
+
+          # Set the PATH to include the /bin directory of the local NPM install.
+
+        + ''
+            export PATH=$NPM_CONFIG_PREFIX/bin:$PATH
+          '';
         };
       }
     );
