@@ -81,26 +81,27 @@
             export NPM=$PWD/.npm
           '' 
           
-          # Configure NPM to work in global mode (as everything is local, this
-          # keeps everything neat and tidy and avoids polluting home paths, etc. which
-          # may also be present.) Also set the cache directory locally.
+          # Configure NPM to have a local prefix, and local cache location
+          # within the prefix structure.
 
         + ''
-            export NPM_CONFIG_LOCATION=global
             export NPM_CONFIG_CACHE=$NPM/cache
             export NPM_CONFIG_PREFIX=$NPM
           ''
 
-          # Set the NODE_PATH to include the local NPM install.
+          # Set the NODE_PATH to include the prefix NPM install.
 
         + ''
             export NODE_PATH=$NPM_CONFIG_PREFIX:$NODE_PATH
           ''
 
-          # Set the PATH to include the /bin directory of the local NPM install.
+          # Set the PATH to include the /[.]bin directories of both the prefix
+          # (global) location, and the local modules (local with higher
+          # precedence than global, global should be used rarely with this
+          # approach).
 
         + ''
-            export PATH=$NPM_CONFIG_PREFIX/bin:$PATH
+            export PATH=$PWD/node_modules/.bin:$NPM_CONFIG_PREFIX/bin:$PATH
           '';
         };
       }
