@@ -1,25 +1,25 @@
 {
-  description = "Rust Development Shell";
+  description = "Rust Development";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
 
       inputs = {
-        nixpkgs.follows = "nixpkgs";
         flake-utils.follows = "flake-utils";
+        nixpkgs.follows = "nixpkgs";
       };
     };
   };
 
   outputs = {
-    self,
+    flake-utils,
     nixpkgs,
     rust-overlay,
-    flake-utils,
+    self,
     ...
   }:
     flake-utils.lib.eachDefaultSystem (
@@ -28,11 +28,24 @@
         pkgs = import nixpkgs {
           inherit system overlays;
         };
+        rust = (
+          if builtins.pathExists ./rust-toolchain.toml
+          then pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml
+          else if builtins.pathExists ./rust-toolchain
+          then pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain
+          else
+            pkgs.rust-bin.stable.latest.default.override {
+              extensions = [
+                "rust-src"
+                "rustfmt"
+              ];
+            }
+        );
       in
         with pkgs; {
           devShells.default = mkShell {
             buildInputs = [
-              (rust-bin.fromRustupToolchainFile ./rust-toolchain.toml)
+              rust
             ];
 
             CARGO_HOME = "./.cargo";
