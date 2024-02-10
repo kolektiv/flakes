@@ -1,7 +1,7 @@
 {
-  description = "Nix Flake Templates";
+  description = "Nix Flakes";
 
-  outputs = { self }: {
+  outputs = {self}: {
     templates = {
       node = {
         path = ./node;
